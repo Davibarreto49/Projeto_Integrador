@@ -3,15 +3,11 @@ session_start();
 
 include("conectadb.php");
 
-// Função para gerar um token único
-function generateToken() {
-    return bin2hex(random_bytes(16));
-}
 
 if(isset($_POST['id_agendamento'])) {
     $id_agendamento = $_POST['id_agendamento'];
     $cliente_email = $_POST['cliente_email'];
-    $token = $_POST['token'];
+    
 
     // Query preparada para cancelar o agendamento com base no ID fornecido, no email do cliente e no token
     $sql_cancelar = "DELETE FROM agendamentos WHERE id = ? AND email = ? AND token = ?";
@@ -49,9 +45,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
     } else {
         // Iniciar a transação
         mysqli_begin_transaction($link);
-
-        // Gerar um token único
-        $token = generateToken();
 
         // Inserir os dados na tabela dentro da transação
         $sql = "INSERT INTO agendamentos (nome, email, telefone, data, horario, servico, mensagem, barbeiro, token)
