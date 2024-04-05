@@ -1,45 +1,28 @@
 <?php
-session_start(); // Inicia a sessão
-
-// Verifica se o funcionário está autenticado
-if (!isset($_SESSION['funcionario_id'])) {
-    // Se não estiver autenticado, redireciona para a página de login
-    header("Location: login.php");
-    exit;
-}
+session_start();
 
 include("conectadb.php");
 
-// Obtém o ID do funcionário logado
-$funcionario_id = $_SESSION['funcionario_id'];
+// Seleciona todos os agendamentos da tabela, ordenados por data e hora
+$sql = "SELECT * FROM agendamentos ORDER BY data ASC, horario ASC";
+$resultado = mysqli_query($link, $sql);
 
-// Consulta SQL para selecionar os agendamentos do funcionário logado
-$sql = "SELECT * FROM agendamentos WHERE barbeiro = $funcionario_id"; // Supondo que o campo 'barbeiro' na tabela 'agendamentos' represente o ID do funcionário responsável
-$result = mysqli_query($link, $sql);
-
-if ($result) {
-    // Exibe o nome do funcionário
-    echo "<h2>Bem-vindo, " . $_SESSION['funcionario_nome'] . "!</h2>";
-
-    // Exibe os agendamentos em uma tabela
-    echo "<h3>Cronograma de Funcionário</h3>";
-    echo "<table border='1'>";
-    echo "<tr><th>Cliente</th><th>Serviço</th><th>Data do Serviço</th><th>Hora do Serviço</th></tr>";
-    while ($row = mysqli_fetch_assoc($result)) {
+// Verifica se há agendamentos
+if (mysqli_num_rows($resultado) > 0) {
+    echo "<table>";
+    echo "<tr><th>Cliente</th><th>Serviço</th><th>Data</th><th>Hora</th></tr>";
+    
+    while ($row = mysqli_fetch_assoc($resultado)) {
         echo "<tr>";
-        echo "<td>" . $row['nome'] . "</td>"; // Exibe o nome do cliente
-        echo "<td>" . $row['servico'] . "</td>"; // Exibe o serviço
-        echo "<td>" . $row['data'] . "</td>"; // Exibe a data do serviço
-        echo "<td>" . $row['horario'] . "</td>"; // Exibe o horário do serviço
+        echo "<td>" . $row["nome"] . "</td>";
+        echo "<td>" . $row["servico"] . "</td>";
+        echo "<td>" . date('d/m/Y', strtotime($row["data"])) . "</td>"; // Formatando a data
+        echo "<td>" . date('H:i', strtotime($row["horario"])) . "</td>"; // Formatando a hora
         echo "</tr>";
     }
     echo "</table>";
-} else {
-    // Se ocorrer um erro na consulta, exibe uma mensagem de erro
-    echo "Erro na consulta: " . mysqli_error($link);
 }
 
-// Fecha a conexão com o banco de dados
 mysqli_close($link);
 ?>
 
@@ -53,6 +36,5 @@ mysqli_close($link);
     <title>Cronograma</title>
 </head>
 <body>
-    
 </body>
 </html>

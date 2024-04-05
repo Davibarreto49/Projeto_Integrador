@@ -40,9 +40,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
     $mensagem = $_POST['mensagem'];
     $barbeiro = $_POST['barbeiro'];
     
-    // Gerar um token único
-    $token = uniqid();
-
     if(empty($nome) || empty($email) || empty($telefone) || empty($data) || empty($horario) || empty($servico) || empty($barbeiro)) {
         $mensagemErro = "Por favor, preencha todos os campos obrigatórios.";
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -56,10 +53,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
         mysqli_begin_transaction($link);
         
         // Inserir os dados na tabela dentro da transação
-        $sql = "INSERT INTO agendamentos (nome, email, telefone, data, horario, servico, mensagem, barbeiro, token)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO agendamentos (nome, email, telefone, data, horario, servico, mensagem, barbeiro)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = mysqli_prepare($link, $sql);
-        mysqli_stmt_bind_param($stmt, "sssssssss", $nome, $email, $telefone, $data, $horario, $servico, $mensagem, $barbeiro, $token);
+        mysqli_stmt_bind_param($stmt, "ssssssss", $nome, $email, $telefone, $data, $horario, $servico, $mensagem, $barbeiro);
         $result = mysqli_stmt_execute($stmt);
 
         if ($result === TRUE) {
